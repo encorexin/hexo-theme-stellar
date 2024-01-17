@@ -1,42 +1,65 @@
 <%
-function layoutDiv() {
-  if (page.layout !== "wiki") {
-    return '';
+function relatedPostsInTopic() {
+  if (page.topic?.length == 0) {
+    return ''
   }
-  var related = [];
-  let proj = theme.wiki.projects[page.wiki];
-  if (proj.related && proj.related.length > 0) {
-    proj.related.forEach((pid, i) => {
-      let p = theme.wiki.projects[pid];
-      if (p && p.title !== proj.title && p.index !== false) {
-        related.push(p);
-      }
-    });
+  const topic = theme.topic.tree[page.topic]
+  if (topic == null) {
+    return ''
   }
-  var el = '';
-  if (related.length > 0) {
-    el += '<widget class="widget-wrapper related">';
-    el += '<div class="widget-header cap theme dis-select">';
-    var title = __('btn.wiki');
-    if (proj.tags && proj.tags[0]) {
-      title = proj.tags[0];
+  var el = ''
+  el += `<widget class="widget-wrapper post-list">`
+  el += `<div class="widget-header cap dis-select">`
+  el += `<span class="name">${__('btn.topic') + __('symbol.colon') + topic.name}</span>`
+  el += `</div>`
+  el += `<div class="widget-body">`
+  for (let post of topic.pages) {
+    const isActive = post.path == page.path
+    el += `<a class="item${isActive ? ' active' : ''}" href="${url_for(post.path)}">`
+    el += `<span class="title">${post.title}</span>`
+    if (isActive) {
+      el += `<svg t="1705415018387" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="14793" width="200" height="200"><path d="M256 896a42.666667 42.666667 0 0 1-20.906667-5.546667A42.666667 42.666667 0 0 1 213.333333 853.333333V227.413333A97.28 97.28 0 0 1 307.2 128h409.6A97.28 97.28 0 0 1 810.666667 227.413333V853.333333a42.666667 42.666667 0 0 1-21.333334 36.693334 42.666667 42.666667 0 0 1-42.666666 0l-241.92-136.96-227.413334 136.533333A42.666667 42.666667 0 0 1 256 896z" p-id="14794"></path></svg>`
     }
-    el += '<span class="name">' + __('meta.more', title) + '</span>';
-    el += '</div>';
-    el += '<div class="widget-body related-posts">';
-    related.forEach((p, i) => {
-      // 同一个分组中的其它项目
-      el += '<a class="item wiki" href="' + url_for(p.homepage.path) + '">';
-      el += '<span class="title">' + p.title + '</span>';
-      if (p.description && p.description.length > 0) {
-        el += '<span class="excerpt">' + p.description + '</span>';
-      }
-      el += '</a>';
-    });
-    el += '</div>';
-    el += '</widget>';
+    el += `</a>`
   }
-  return el;
+  el += `</div>`
+  el += `</widget>`
+  return el
+}
+function relatedWiki() {
+  let thisItemObject = theme.wiki.tree[page.wiki]
+  if (thisItemObject == null) {
+    return ''
+  }
+  const relatedItems = thisItemObject.relatedItems
+  var el = ''
+  for (let relatedItem of relatedItems) {
+    el += `<widget class="widget-wrapper post-card">`
+    el += `<div class="widget-header cap dis-select">`
+    el += `<span class="name">${__('meta.more') + __('symbol.colon') + relatedItem.name}</span>`
+    el += `</div>`
+    el += `<div class="widget-body">`
+    for (let id of relatedItem.items) {
+      // 同一个分组中的其它项目
+      let item = theme.wiki.tree[id]
+      el += `<a class="item wiki" href="${url_for(item.homepage?.path)}">`
+      el += `<span class="title">${item.title}</span>`
+      if (item.description && item.description.length > 0) {
+        el += `<span class="excerpt">${item.description}</span>`
+      }
+      el += `</a>`
+    }
+    el += `</div>`
+    el += `</widget>`
+  }
+  return el
+}
+function layoutDiv() {
+  if (page.layout == 'wiki') {
+    return relatedWiki()
+  } else if (page.layout == 'topic') {
+    return relatedPostsInTopic()
+  }
 }
 %>
 <%- layoutDiv() %>

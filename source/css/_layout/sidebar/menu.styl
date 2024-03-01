@@ -2,7 +2,7 @@
   width: 100%
   display: grid
   margin: 8px 0
-  grid-template-columns: repeat(4, 1fr)
+  grid-template-columns: repeat(hexo-config('menubar.columns'), 1fr)
   grid-gap: 8px
   &::-webkit-scrollbar
     display: none
@@ -13,24 +13,33 @@
   
   .nav-item
     box-sizing: border-box
-    text-overflow: ellipsis
-    word-break: keep-all
     width: 100%
-    line-height: 40px
+    min-height: 40px
     border-radius: $border-bar
     font-size: $fs-15
     font-weight: 500
     color: var(--text-p3)
     text-align: center
     background: var(--alpha50)
-    @supports ((-webkit-backdrop-filter:blur(var(--blur-px))) or (backdrop-filter:blur(var(--blur-px))))
-      backdrop-filter: saturate(200%) blur(var(--blur-px))
-      -webkit-backdrop-filter: saturate(200%) blur(var(--blur-px))
     trans1 background
     position: relative
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    img,svg
+      height: 28px
+      object-fit: contain
+      filter: grayscale(100%) brightness(0.8) opacity(0.8)
+      trans1 all
+    span
+      text-overflow: ellipsis
+      word-break: keep-all
     &.active, &:hover
       color: var(--text-p1)
       background: var(--alpha100)
+      img,svg
+        filter: unset
     &.active:after
       content: ''
       position absolute
